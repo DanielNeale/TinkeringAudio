@@ -6,9 +6,8 @@ public class MusicGeneration : MonoBehaviour
 {
     private AudioSource SOURCE;
     private AudioClip song;
-    public TextAsset NOTES_TXT;
-    private Dictionary<string, float> NOTES;
-    private int line_num;
+    public TextAsset NOTES_CSV;
+    private Dictionary<string, float> NOTES = new Dictionary<string, float>();
 
     private void Start()
     {
@@ -17,22 +16,37 @@ public class MusicGeneration : MonoBehaviour
         // Reference for frequency of musical notes
         // https://pages.mtu.edu/~suits/notefreqs.html
 
-        for (int i = 0; i < NOTES_TXT.text.Length; i++)
-        {
+        string[] data = NOTES_CSV.text.Split(new char[] {'\n'});
 
+        for (int i = 0; i < data.Length; i++)
+        {
+            string[] row = data[i].Split(new char[] { ',' });
+
+            if (row[0] != "")
+            {
+                string note_name = row[0];
+                float note_freq = float.Parse(row[1]);
+
+                NOTES.Add(note_name, note_freq);
+            }           
         }
     }
 
     public void PlayMusic()
     {
-        int tone;
+        int note = Random.Range(0, NOTES.Count);
+        Debug.Log(note);
+        List<string> keyList = new List<string>(NOTES.Keys);        
+        string key = keyList[note];
+        Debug.Log(key);
+        Debug.Log(NOTES[key]);
 
-        song = CreateToneAudioClip(150);
+        song = CreateToneAudioClip(NOTES[key]);
 
         SOURCE.PlayOneShot(song);
     }
 
-    private AudioClip CreateToneAudioClip(int frequency)
+    private AudioClip CreateToneAudioClip(float frequency)
     {
         int sampleDurationSecs = 5;
         int sampleRate = 44100;

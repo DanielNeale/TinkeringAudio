@@ -776,4 +776,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd9943ea57dea6f4483dbcd3e2b43685, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  notes: {fileID: 4900000, guid: 1caf2c47e9613434ea74c2ee4adc6a0e, type: 3}
+  NOTES_CSV: {fileID: 4900000, guid: 1caf2c47e9613434ea74c2ee4adc6a0e, type: 3}
