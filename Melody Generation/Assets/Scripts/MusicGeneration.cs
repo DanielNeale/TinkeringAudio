@@ -8,6 +8,8 @@ public class MusicGeneration : MonoBehaviour
     private AudioClip song;
     public TextAsset NOTES_CSV;
     private Dictionary<string, float> NOTES = new Dictionary<string, float>();
+    public int note_count;
+    float[] tune;
 
     private void Start()
     {
@@ -34,36 +36,43 @@ public class MusicGeneration : MonoBehaviour
 
     public void PlayMusic()
     {
-        int note = Random.Range(0, NOTES.Count);
-        Debug.Log(note);
-        List<string> keyList = new List<string>(NOTES.Keys);        
-        string key = keyList[note];
-        Debug.Log(key);
-        Debug.Log(NOTES[key]);
+        tune = new float[note_count];
 
-        song = CreateToneAudioClip(NOTES[key]);
+        for (int i = 0; i < note_count; i++)
+        {
+            int note = Random.Range(0, NOTES.Count);
+            List<string> keyList = new List<string>(NOTES.Keys);
+            string key = keyList[note];
+            tune[i] = NOTES[key];           
+        }        
+
+        song = CreateToneAudioClip(tune);
 
         SOURCE.PlayOneShot(song);
     }
 
-    private AudioClip CreateToneAudioClip(float frequency)
+    private AudioClip CreateToneAudioClip(float[] frequency)
     {
-        int sampleDurationSecs = 5;
+        int sampleDurationSecs = 1;
         int sampleRate = 44100;
-        int sampleLength = sampleRate * sampleDurationSecs;
+        int sampleLength = sampleRate * sampleDurationSecs * note_count;
         float maxValue = 1f / 4f;
 
         AudioClip audioClip = AudioClip.Create("song", sampleLength, 1, sampleRate, false);
 
         float[] samples = new float[sampleLength];
 
-        for (int i = 0; i < sampleLength; i++)
+        for (int f = 0; f < frequency.Length; f++)
         {
-            float s = Mathf.Sin(2.0f * Mathf.PI * frequency * ((float)i / (float)sampleRate));
-            float v = s * maxValue;
-            samples[i] = v;
+            for (int i = 0; i < sampleLength; i++)
+            {
+                float s = Mathf.Sin(2.0f * Mathf.PI * frequency[f] * ((float)i / (float)sampleRate));
+                float v = s * maxValue;
+                samples[i] = v;               
+            }
+            Debug.Log(frequency[f]);
         }
-
+        
         audioClip.SetData(samples, 0);
         return audioClip;
     }

@@ -777,3 +777,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   NOTES_CSV: {fileID: 4900000, guid: 1caf2c47e9613434ea74c2ee4adc6a0e, type: 3}
+  note_count: 2
