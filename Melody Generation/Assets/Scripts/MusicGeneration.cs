@@ -60,7 +60,8 @@ public class MusicGeneration : MonoBehaviour
 
         AudioClip audioClip = AudioClip.Create("song", sampleLength, 1, sampleRate, false);
 
-        float[] samples = new float[sampleLength];
+
+        List<float> samples = new List<float>();
 
         for (int f = 0; f < frequency.Length; f++)
         {
@@ -68,12 +69,19 @@ public class MusicGeneration : MonoBehaviour
             {
                 float s = Mathf.Sin(2.0f * Mathf.PI * frequency[f] * ((float)i / (float)sampleRate));
                 float v = s * maxValue;
-                samples[i] = v;               
+                samples.Add(v);
             }
             Debug.Log(frequency[f]);
         }
+
+        float[] new_samples = new float[samples.Count];
         
-        audioClip.SetData(samples, 0);
+        for (int s = 0; s < new_samples.Length; s++)
+        {
+            new_samples[s] = samples[s];
+        }
+
+        audioClip.SetData(new_samples, 0);
         return audioClip;
     }
 }
