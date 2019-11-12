@@ -11,6 +11,7 @@ public class MusicGeneration : MonoBehaviour
     public int note_count;
     float[] tune;
 
+
     private void Start()
     {
         SOURCE = GetComponent<AudioSource>();
@@ -34,6 +35,7 @@ public class MusicGeneration : MonoBehaviour
         }
     }
 
+
     public void PlayMusic()
     {
         tune = new float[note_count];
@@ -50,6 +52,7 @@ public class MusicGeneration : MonoBehaviour
 
         SOURCE.PlayOneShot(song);
     }
+
 
     private AudioClip CreateToneAudioClip(float[] frequency)
     {
