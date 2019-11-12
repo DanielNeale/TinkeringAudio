@@ -65,7 +65,7 @@ public class MusicGeneration : MonoBehaviour
 
         for (int f = 0; f < frequency.Length; f++)
         {
-            for (int i = 0; i < sampleLength; i++)
+            for (int i = 0; i < sampleRate; i++)
             {
                 float s = Mathf.Sin(2.0f * Mathf.PI * frequency[f] * ((float)i / (float)sampleRate));
                 float v = s * maxValue;
