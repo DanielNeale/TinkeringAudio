@@ -10,6 +10,7 @@ public class MusicGeneration : MonoBehaviour
     private Dictionary<string, float> NOTES = new Dictionary<string, float>();
     public int note_count;
     float[] tune;
+    float[] noteLengths;
 
 
     private void Start()
@@ -38,7 +39,7 @@ public class MusicGeneration : MonoBehaviour
 
     public void PlayMusic()
     {
-        tune = Melody();
+        Melody();
 
         song = CreateToneAudioClip(tune);
 
@@ -46,15 +47,18 @@ public class MusicGeneration : MonoBehaviour
     }
 
 
-    private float[] Melody()
+    private void Melody()
     {
         tune = new float[note_count];
+        noteLengths = new float[note_count];
         List<string> keyList = new List<string>(NOTES.Keys);
         int note = Random.Range(0, NOTES.Count);
 
         for (int i = 0; i < note_count; i++)
         {           
             int noteStep = Random.Range(0, 100);
+            int newLength = Random.Range(0, 100);
+            float noteLength = 0;
 
             if (noteStep >= 20)
             {
@@ -89,15 +93,47 @@ public class MusicGeneration : MonoBehaviour
                 }
             }
 
-            
+            if (newLength >= 30)
+            {
+                if (newLength < 60)
+                {
+                    noteLength = 0.5f;
+                }
 
-            Debug.Log(noteStep);
-            Debug.Log(note);
+                else if (newLength < 85)
+                {
+                    noteLength = 1;
+                }
+
+                else if (newLength < 100)
+                {
+                    noteLength = 2;
+                }
+            }
+
+            else
+            {
+                //silence note
+                if (newLength < 15)
+                {
+                    noteLength = 0.5f;
+                }
+
+                else if (newLength < 25)
+                {
+                    noteLength = 1;
+                }
+
+                else if (newLength < 30)
+                {
+                    noteLength = 2;
+                }
+            }
+
             string key = keyList[note];
             tune[i] = NOTES[key];
+            noteLengths[i] = noteLength;
         }
-
-        return tune;
     }
 
 
@@ -115,7 +151,7 @@ public class MusicGeneration : MonoBehaviour
 
         for (int f = 0; f < frequency.Length; f++)
         {
-            for (int i = 0; i < sampleRate; i++)
+            for (int i = 0; i < sampleRate * noteLengths[i]; i++)
             {
                 float s = Mathf.Sin(2.0f * Mathf.PI * frequency[f] * ((float)i / (float)sampleRate));
                 float v = s * maxValue;

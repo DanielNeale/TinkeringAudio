@@ -648,7 +648,7 @@ GameObject:
   - component: {fileID: 1611651434}
   - component: {fileID: 1611651436}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Music Maker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
