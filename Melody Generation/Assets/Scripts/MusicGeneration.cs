@@ -38,19 +38,28 @@ public class MusicGeneration : MonoBehaviour
 
     public void PlayMusic()
     {
-        tune = new float[note_count];
-
-        for (int i = 0; i < note_count; i++)
-        {
-            int note = Random.Range(0, NOTES.Count);
-            List<string> keyList = new List<string>(NOTES.Keys);
-            string key = keyList[note];
-            tune[i] = NOTES[key];           
-        }        
+        tune = Melody();
 
         song = CreateToneAudioClip(tune);
 
         SOURCE.PlayOneShot(song);
+    }
+
+
+    private float[] Melody()
+    {
+        tune = new float[note_count];
+        List<string> keyList = new List<string>(NOTES.Keys);
+        int note = Random.Range(0, NOTES.Count);
+
+        for (int i = 0; i < note_count; i++)
+        {
+            note += Random.Range(-1, 2);            
+            string key = keyList[note];
+            tune[i] = NOTES[key];
+        }
+
+        return tune;
     }
 
 
