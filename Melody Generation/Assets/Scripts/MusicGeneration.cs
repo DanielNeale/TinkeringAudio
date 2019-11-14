@@ -53,8 +53,46 @@ public class MusicGeneration : MonoBehaviour
         int note = Random.Range(0, NOTES.Count);
 
         for (int i = 0; i < note_count; i++)
-        {
-            note += Random.Range(-1, 2);            
+        {           
+            int noteStep = Random.Range(0, 100);
+
+            if (noteStep >= 20)
+            {
+                if (noteStep < 40)
+                {
+                    note -= 1;
+                }
+
+                else if (noteStep < 60)
+                {
+                    note += 1;
+                }
+
+                else if (noteStep < 75)
+                {
+                    note -= 2;
+                }
+
+                else if (noteStep < 90)
+                {
+                    note += 2;
+                }
+
+                else if (noteStep < 95)
+                {
+                    note -= 3;
+                }
+
+                else if (noteStep < 100)
+                {
+                    note += 3;
+                }
+            }
+
+            
+
+            Debug.Log(noteStep);
+            Debug.Log(note);
             string key = keyList[note];
             tune[i] = NOTES[key];
         }
@@ -83,7 +121,6 @@ public class MusicGeneration : MonoBehaviour
                 float v = s * maxValue;
                 samples.Add(v);
             }
-            Debug.Log(frequency[f]);
         }
 
         float[] new_samples = new float[samples.Count];
