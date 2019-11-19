@@ -9,6 +9,7 @@ public class MusicGeneration : MonoBehaviour
     public TextAsset NOTES_CSV;
     private Dictionary<string, float> NOTES = new Dictionary<string, float>();
     public int note_count;
+    public int tempo;
     float[] tune;
     float[] noteLengths;
 
@@ -139,7 +140,7 @@ public class MusicGeneration : MonoBehaviour
 
     private AudioClip CreateToneAudioClip(float[] frequency)
     {
-        int sampleDurationSecs = 1;
+        int sampleDurationSecs = 60 / tempo;
         int sampleRate = 44100;
         int sampleLength = sampleRate * sampleDurationSecs * note_count;
         float maxValue = 1f / 4f;
@@ -151,7 +152,7 @@ public class MusicGeneration : MonoBehaviour
 
         for (int f = 0; f < frequency.Length; f++)
         {
-            for (int i = 0; i < sampleRate * noteLengths[i]; i++)
+            for (int i = 0; i < sampleRate * noteLengths[f]; i++)
             {
                 float s = Mathf.Sin(2.0f * Mathf.PI * frequency[f] * ((float)i / (float)sampleRate));
                 float v = s * maxValue;
