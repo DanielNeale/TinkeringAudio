@@ -8,10 +8,10 @@ public class MusicGeneration : MonoBehaviour
     private AudioClip song;
     public TextAsset NOTES_CSV;
     private Dictionary<string, float> NOTES = new Dictionary<string, float>();
-    public int note_count;
+    public int timeSignature;
     public int tempo;
-    float[] tune;
-    float[] noteLengths;
+    List<float> tune = new List<float>();
+    List<float> noteLengths = new List<float>();
 
 
     private void Start()
@@ -40,6 +40,9 @@ public class MusicGeneration : MonoBehaviour
 
     public void PlayMusic()
     {
+        tune.Clear();
+        noteLengths.Clear();
+
         Melody();
 
         song = CreateToneAudioClip(tune);
@@ -50,12 +53,12 @@ public class MusicGeneration : MonoBehaviour
 
     private void Melody()
     {
-        tune = new float[note_count];
-        noteLengths = new float[note_count];
+        float timeLeft = timeSignature;
         List<string> keyList = new List<string>(NOTES.Keys);
-        int note = Random.Range(0, NOTES.Count);
+        int note = Random.Range(7, 15);
+        int i = 0;
 
-        for (int i = 0; i < note_count; i++)
+        while (timeLeft > 0)
         {           
             int noteStep = Random.Range(0, 100);
             int newLength = Random.Range(0, 100);
@@ -94,55 +97,59 @@ public class MusicGeneration : MonoBehaviour
                 }
             }
 
+            string key = keyList[note];
+            tune.Add(NOTES[key]);
+
             if (newLength >= 30)
             {
                 if (newLength < 60)
                 {
-                    noteLength = 0.5f;
+                    noteLength = 0.25f;
                 }
 
                 else if (newLength < 85)
                 {
-                    noteLength = 1;
+                    noteLength = 0.5f;
                 }
 
                 else if (newLength < 100)
                 {
-                    noteLength = 2;
+                    noteLength = 1;
                 }
             }
 
             else
             {
-                //silence note
+                tune[i] = 0;
+
                 if (newLength < 15)
                 {
-                    noteLength = 0.5f;
+                    noteLength = 0.25f;
                 }
 
                 else if (newLength < 25)
                 {
-                    noteLength = 1;
+                    noteLength = 0.5f;
                 }
 
                 else if (newLength < 30)
                 {
-                    noteLength = 2;
+                    noteLength = 1;
                 }
             }
+           
+            noteLengths.Add(noteLength);
 
-            string key = keyList[note];
-            tune[i] = NOTES[key];
-            noteLengths[i] = noteLength;
+            timeLeft -= noteLength;
+            i++;
         }
     }
 
-
-    private AudioClip CreateToneAudioClip(float[] frequency)
+    private AudioClip CreateToneAudioClip(List<float> frequency)
     {
         int sampleDurationSecs = 60 / tempo;
         int sampleRate = 44100;
-        int sampleLength = sampleRate * sampleDurationSecs * note_count;
+        int sampleLength = sampleRate * sampleDurationSecs * timeSignature;
         float maxValue = 1f / 4f;
 
         AudioClip audioClip = AudioClip.Create("song", sampleLength, 1, sampleRate, false);
@@ -150,7 +157,7 @@ public class MusicGeneration : MonoBehaviour
 
         List<float> samples = new List<float>();
 
-        for (int f = 0; f < frequency.Length; f++)
+        for (int f = 0; f < frequency.Count; f++)
         {
             for (int i = 0; i < sampleRate * noteLengths[f]; i++)
             {
