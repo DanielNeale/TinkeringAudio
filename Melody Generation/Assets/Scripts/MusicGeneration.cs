@@ -137,19 +137,29 @@ public class MusicGeneration : MonoBehaviour
                     noteLength = 1;
                 }
             }
-           
-            noteLengths.Add(noteLength);
 
             timeLeft -= noteLength;
+
+            if (timeLeft < 0)
+            {
+                noteLength += timeLeft;
+                noteLengths.Add(noteLength);
+            }
+
+            else
+            {
+                noteLengths.Add(noteLength);
+            }
+
             i++;
         }
     }
 
     private AudioClip CreateToneAudioClip(List<float> frequency)
     {
-        int sampleDurationSecs = 60 / tempo;
+        float sampleDurationSecs = 60f / tempo;
         int sampleRate = 44100;
-        int sampleLength = sampleRate * sampleDurationSecs * timeSignature;
+        int sampleLength = Mathf.RoundToInt(sampleRate * sampleDurationSecs * timeSignature);
         float maxValue = 1f / 4f;
 
         AudioClip audioClip = AudioClip.Create("song", sampleLength, 1, sampleRate, false);
