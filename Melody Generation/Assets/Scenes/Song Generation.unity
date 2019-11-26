@@ -776,6 +776,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd9943ea57dea6f4483dbcd3e2b43685, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NOTES_CSV: {fileID: 4900000, guid: f76e4dfe79bae744a8bf284d68c8b36f, type: 3}
+  notesCsv: {fileID: 4900000, guid: f76e4dfe79bae744a8bf284d68c8b36f, type: 3}
   noteCount: 8
-  tempo: 60

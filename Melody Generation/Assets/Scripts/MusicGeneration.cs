@@ -190,7 +190,7 @@ public class MusicGeneration : MonoBehaviour
         int sampleRate = 44100;
         int sampleLength = Mathf.RoundToInt(sampleRate * sampleDurationSecs * noteCount);
         Debug.Log(sampleLength);
-        float maxValue = 1f / 4f;
+        float volume = 0.25f;
 
         AudioClip audioClip = AudioClip.Create("song", sampleLength, 1, sampleRate, false);
 
@@ -202,7 +202,7 @@ public class MusicGeneration : MonoBehaviour
             for (int i = 0; i < sampleRate * noteLengths[f]; i++)
             {
                 float s = Mathf.Sin(2.0f * Mathf.PI * frequency[f] * ((float)i / (float)sampleRate));
-                float v = s * maxValue;
+                float v = s * volume;
                 samples.Add(v);
             }
         }
