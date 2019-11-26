@@ -4,24 +4,27 @@ using UnityEngine;
 
 public class MusicGeneration : MonoBehaviour
 {
-    private AudioSource SOURCE;
+    private AudioSource source;
     private AudioClip song;
-    public TextAsset NOTES_CSV;
-    private Dictionary<string, float> NOTES = new Dictionary<string, float>();
-    public int timeSignature;
-    public int tempo;
+    public TextAsset notesCsv;
+    private Dictionary<string, float> notes = new Dictionary<string, float>();
+    public int noteCount;
     List<float> tune = new List<float>();
     List<float> noteLengths = new List<float>();
 
-
+    
+    /// <summary>
+    /// Sets the audio source and puts all of the notes from the csv file into
+    /// a dictionary to be used by the program
+    /// </summary>
     private void Start()
-    {
-        SOURCE = GetComponent<AudioSource>();
+    {     
+        source = GetComponent<AudioSource>();
 
         // Reference for frequency of musical notes
         // https://pages.mtu.edu/~suits/notefreqs.html
 
-        string[] data = NOTES_CSV.text.Split(new char[] {'\n'});
+        string[] data = notesCsv.text.Split(new char[] {'\n'});
 
         for (int i = 0; i < data.Length; i++)
         {
@@ -32,12 +35,16 @@ public class MusicGeneration : MonoBehaviour
                 string note_name = row[0];
                 float note_freq = float.Parse(row[1]);
 
-                NOTES.Add(note_name, note_freq);
+                notes.Add(note_name, note_freq);
             }           
         }
     }
 
 
+    /// <summary>
+    /// Called when the button is pressed. Runs through all the setup 
+    /// and then plays the tune
+    /// </summary>
     public void PlayMusic()
     {
         tune.Clear();
@@ -45,25 +52,34 @@ public class MusicGeneration : MonoBehaviour
 
         Melody();
 
-        song = CreateToneAudioClip(tune);
+        song = CreateAudioClip(tune);
 
-        SOURCE.PlayOneShot(song);
+        source.PlayOneShot(song);
     }
 
 
+    /// <summary>
+    /// Randomly generates a tune the length of noteCount. It's designed to
+    /// more likely choose sequencial notes however will have a lower chance
+    /// to generate notes further away from the previous to generate more
+    /// interesting melodies. Will also generate a random length for each
+    /// note and will also include breaks
+    /// </summary>
     private void Melody()
     {
-        float timeLeft = timeSignature;
-        List<string> keyList = new List<string>(NOTES.Keys);
+        float timeLeft = noteCount;
+        List<string> keyList = new List<string>(notes.Keys);
         int note = Random.Range(7, 15);
         int i = 0;
 
         while (timeLeft > 0)
-        {           
+        {   
+            // Genartes percantage chance for next note/length
             int noteStep = Random.Range(0, 100);
             int newLength = Random.Range(0, 100);
             float noteLength = 0;
 
+            // Chooses next note length based on percentage
             if (noteStep >= 20)
             {
                 if (noteStep < 40)
@@ -98,8 +114,9 @@ public class MusicGeneration : MonoBehaviour
             }
 
             string key = keyList[note];
-            tune.Add(NOTES[key]);
+            tune.Add(notes[key]);
 
+            // Generates note length based on percentage
             if (newLength >= 30)
             {
                 if (newLength < 60)
@@ -118,6 +135,7 @@ public class MusicGeneration : MonoBehaviour
                 }
             }
 
+            // Has chance to generate a break instead
             else
             {
                 tune[i] = 0;
@@ -140,6 +158,8 @@ public class MusicGeneration : MonoBehaviour
 
             timeLeft -= noteLength;
 
+            // Rounds up length of last note if it goes past length of
+            // the audio clip
             if (timeLeft < 0)
             {
                 noteLength += timeLeft;
@@ -155,18 +175,23 @@ public class MusicGeneration : MonoBehaviour
         }
     }
 
-    private AudioClip CreateToneAudioClip(List<float> frequency)
+
+    /// <summary>
+    /// Takes the melody generated above and creates a sound file to play it
+    /// </summary>
+    private AudioClip CreateAudioClip(List<float> frequency)
     {
-        float sampleDurationSecs = 60f / tempo;
+        float sampleDurationSecs = 1f;
         int sampleRate = 44100;
-        int sampleLength = Mathf.RoundToInt(sampleRate * sampleDurationSecs * timeSignature);
+        int sampleLength = Mathf.RoundToInt(sampleRate * sampleDurationSecs * noteCount);
+        Debug.Log(sampleLength);
         float maxValue = 1f / 4f;
 
         AudioClip audioClip = AudioClip.Create("song", sampleLength, 1, sampleRate, false);
 
-
         List<float> samples = new List<float>();
 
+        // Simulates audio waves
         for (int f = 0; f < frequency.Count; f++)
         {
             for (int i = 0; i < sampleRate * noteLengths[f]; i++)
@@ -177,14 +202,17 @@ public class MusicGeneration : MonoBehaviour
             }
         }
 
-        float[] new_samples = new float[samples.Count];
+        // Samples are put into a list and then converted into a array as the
+        // audio clip only takes an array however it is much easier to put
+        // the frequencies into a list
+        float[] newSamples = new float[samples.Count];
         
-        for (int s = 0; s < new_samples.Length; s++)
+        for (int s = 0; s < newSamples.Length; s++)
         {
-            new_samples[s] = samples[s];
+            newSamples[s] = samples[s];
         }
 
-        audioClip.SetData(new_samples, 0);
+        audioClip.SetData(newSamples, 0);
         return audioClip;
     }
 }

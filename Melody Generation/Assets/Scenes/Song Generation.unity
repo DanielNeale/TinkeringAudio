@@ -777,5 +777,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   NOTES_CSV: {fileID: 4900000, guid: f76e4dfe79bae744a8bf284d68c8b36f, type: 3}
-  timeSignature: 4
+  noteCount: 8
   tempo: 60
