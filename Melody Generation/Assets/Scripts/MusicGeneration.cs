@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿// Melody Generation
+// Written by Daniel Neale
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,6 +29,8 @@ public class MusicGeneration : MonoBehaviour
 
         string[] data = notesCsv.text.Split(new char[] {'\n'});
 
+        // Runs through each line of the CSV file and splits up the text into
+        // the note name (dictionary key) and frequency (dictionary value)
         for (int i = 0; i < data.Length; i++)
         {
             string[] row = data[i].Split(new char[] { ',' });
