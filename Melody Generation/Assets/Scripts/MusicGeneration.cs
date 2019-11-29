@@ -63,6 +63,10 @@ public class MusicGeneration : MonoBehaviour
         source.PlayOneShot(song);
     }
 
+    /// <summary>
+    /// Saves the song to a file in the local unity folder
+    /// Credit to http://the.darktable.com for the script
+    /// </summary>
     public void Save()
     {
         SavWav.Save("Song", song);
@@ -219,27 +223,29 @@ public class MusicGeneration : MonoBehaviour
         List<float> tuneSamples = new List<float>();
         List<float> bassSamples = new List<float>();
 
-        // Baseline
+        // Creates a bassline based on the first note of each progression
         int[] bassline = new int[progression.Length];
         int firstNote = 0;
 
         for (int b = 0; b < bassline.Length; b++)
         {
-            while (bassline[b] == 0)
+            // Sets the bass note to the first non silenced note
+            for (int t = 0; t < tune.Count; t++)
             {
                 if (tune[firstNote] != -1)
                 {
-                    bassline[b] = tune[0] + progression[b];
+                    bassline[b] = tune[firstNote] + progression[b];
+                    t = tune.Count;
                 }
 
                 else
                 {
                     firstNote++;
                 }
-            }            
+            }
         }
 
-        // Creates waves from the frequencies
+        // Calculates the progression by adding to each note
         for (int p = 0; p < progression.Length; p++)
         {
             for (int f = 0; f < tune.Count; f++)
@@ -266,6 +272,7 @@ public class MusicGeneration : MonoBehaviour
                     frequency = notes[key];
                 }
 
+                // Creates waves from the frequencies
                 for (int i = 0; i < sampleRate * noteLengths[f]; i++)
                 {                  
                     float s = Mathf.Sin(2.0f * Mathf.PI * frequency * ((float)i / (float)sampleRate));
@@ -283,17 +290,17 @@ public class MusicGeneration : MonoBehaviour
             string key = keyList[bassline[b]];
             frequency = notes[key];
 
+            // Creates waves from the frequencies
             for (int i = 0; i < sampleRate * noteCount; i++)
             {
-                float s = Mathf.Sin(2.0f * Mathf.PI * frequency * ((float)i / (float)sampleRate));
+                float s = 2 * Mathf.Sin(2.0f * -Mathf.PI * frequency * ((float)i / (float)sampleRate));
                 float v = s * volume;              
                 bassSamples.Add(v);
             }
         }
 
-        // Samples are put into a list and then converted into a array as the
-        // audio clip only takes an array however it is much easier to put
-        // the frequencies into a list
+        // Samples are put into a list and then added together to keep them
+        // in one audio file and then put in an array to be set
         float[] newSamples = new float[tuneSamples.Count];
         
         for (int s = 0; s < newSamples.Length; s++)
