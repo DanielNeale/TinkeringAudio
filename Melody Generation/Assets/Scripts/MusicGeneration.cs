@@ -211,11 +211,28 @@ public class MusicGeneration : MonoBehaviour
 
         AudioClip audioClip = AudioClip.Create("song", sampleLength, 1, sampleRate, false);
 
-        List<float> samples = new List<float>();
+        List<float> tuneSamples = new List<float>();
+        List<float> bassSamples = new List<float>();
+
+        // Baseline
+        int[] bassline = new int[progression.Length];
+
+        for (int b = 0; b < bassline.Length; b++)
+        {
+            bassline[b] = tune[0] + progression[b];
+        }
 
         // Creates waves from the frequencies
         for (int p = 0; p < progression.Length; p++)
         {
+            for (int f = 0; f < tune.Count; f++)
+            {
+                if (tune[f] != -1)
+                {
+                    tune[f] += progression[p];
+                }
+            }
+
             for (int f = 0; f < tune.Count; f++)
             {
                 // Gets frequency from notes dictionary
@@ -236,27 +253,35 @@ public class MusicGeneration : MonoBehaviour
                 {                  
                     float s = Mathf.Sin(2.0f * Mathf.PI * frequency * ((float)i / (float)sampleRate));
                     float v = s * volume;
-                    samples.Add(v);
+                    tuneSamples.Add(v);
                 }
-            }
+            }            
+        }
 
-            for (int f = 0; f < tune.Count; f++)
+        // Turns the bassline into waves
+        for (int b = 0; b < bassline.Length; b++)
+        {
+            // Gets frequency from notes dictionary
+            float frequency;
+            string key = keyList[bassline[b]];
+            frequency = notes[key];
+            
+            for (int i = 0; i < sampleRate * noteCount; i++)
             {
-                if (tune[f] != -1)
-                {
-                    tune[f] += progression[p];
-                }                
+                float s = Mathf.Sin(2.0f * Mathf.PI * frequency * ((float)i / (float)sampleRate));
+                float v = s * volume;
+                bassSamples.Add(v);
             }
-        }       
+        }
 
         // Samples are put into a list and then converted into a array as the
         // audio clip only takes an array however it is much easier to put
         // the frequencies into a list
-        float[] newSamples = new float[samples.Count];
+        float[] newSamples = new float[tuneSamples.Count];
         
         for (int s = 0; s < newSamples.Length; s++)
         {
-            newSamples[s] = samples[s];
+            newSamples[s] = (tuneSamples[s] + bassSamples[s]) / 2;
         }
 
         audioClip.SetData(newSamples, 0);
