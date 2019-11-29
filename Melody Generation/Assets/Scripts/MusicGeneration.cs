@@ -63,6 +63,11 @@ public class MusicGeneration : MonoBehaviour
         source.PlayOneShot(song);
     }
 
+    public void Save()
+    {
+        SavWav.Save("Song", song);
+    }
+
 
     /// <summary>
     /// Randomly generates a tune the length of noteCount. It's designed to
