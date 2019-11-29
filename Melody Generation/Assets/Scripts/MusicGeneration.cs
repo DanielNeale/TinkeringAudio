@@ -12,8 +12,9 @@ public class MusicGeneration : MonoBehaviour
     public TextAsset notesCsv;
     private Dictionary<string, float> notes = new Dictionary<string, float>();
     public int noteCount;
-    List<float> tune = new List<float>();
+    List<int> tune = new List<int>();
     List<float> noteLengths = new List<float>();
+    public int[] progression;
 
     
     /// <summary>
@@ -57,7 +58,7 @@ public class MusicGeneration : MonoBehaviour
 
         Melody();
 
-        song = CreateAudioClip(tune);
+        song = CreateAudioClip();
 
         source.PlayOneShot(song);
     }
@@ -73,15 +74,32 @@ public class MusicGeneration : MonoBehaviour
     private void Melody()
     {
         float timeLeft = noteCount;
-        List<string> keyList = new List<string>(notes.Keys);
         int note = Random.Range(7, 15);
         int i = 0;
 
         while (timeLeft > 0)
-        {   
-            // Genartes percantage chance for next note/length
-            int noteStep = Random.Range(0, 100);
-            int newLength = Random.Range(0, 100);
+        {
+            // Genartes percantage chance for next note/length, if note is at the
+            // end of the dictionary it moves the tune in the other direction
+            int noteStep;
+            int newLength;
+
+            if (note <= 5)
+            {
+                noteStep = Random.Range(61, 100);
+            }
+
+            else if (note >= 15)
+            {
+                noteStep = Random.Range(21, 60);
+            }
+
+            else
+            {
+                noteStep = Random.Range(0, 100);
+            }
+           
+            newLength = Random.Range(0, 100);
             float noteLength = 0;
 
             // Chooses next note length based on percentage
@@ -92,24 +110,24 @@ public class MusicGeneration : MonoBehaviour
                     note -= 1;
                 }
 
-                else if (noteStep < 60)
-                {
-                    note += 1;
-                }
-
-                else if (noteStep < 75)
+                else if (noteStep < 55)
                 {
                     note -= 2;
                 }
 
-                else if (noteStep < 90)
+                else if (noteStep < 60)
                 {
-                    note += 2;
+                    note -= 3;
+                }
+
+                else if (noteStep < 80)
+                {
+                    note += 1;
                 }
 
                 else if (noteStep < 95)
                 {
-                    note -= 3;
+                    note += 2;
                 }
 
                 else if (noteStep < 100)
@@ -118,8 +136,7 @@ public class MusicGeneration : MonoBehaviour
                 }
             }
 
-            string key = keyList[note];
-            tune.Add(notes[key]);
+            tune.Add(note);
 
             // Generates note length based on percentage
             if (newLength >= 30)
@@ -143,7 +160,7 @@ public class MusicGeneration : MonoBehaviour
             // Has chance to generate a break instead
             else
             {
-                tune[i] = 0;
+                tune[i] = -1;
 
                 if (newLength < 15)
                 {
@@ -184,28 +201,53 @@ public class MusicGeneration : MonoBehaviour
     /// <summary>
     /// Takes the melody generated above and creates a sound file to play it
     /// </summary>
-    private AudioClip CreateAudioClip(List<float> frequency)
+    private AudioClip CreateAudioClip()
     {
         float sampleDurationSecs = 1f;
         int sampleRate = 44100;
-        int sampleLength = Mathf.RoundToInt(sampleRate * sampleDurationSecs * noteCount);
-        Debug.Log(sampleLength);
+        int sampleLength = Mathf.RoundToInt(sampleRate * sampleDurationSecs * noteCount * progression.Length);
         float volume = 0.25f;
+        List<string> keyList = new List<string>(notes.Keys);
 
         AudioClip audioClip = AudioClip.Create("song", sampleLength, 1, sampleRate, false);
 
         List<float> samples = new List<float>();
 
-        // Simulates audio waves
-        for (int f = 0; f < frequency.Count; f++)
+        // Creates waves from the frequencies
+        for (int p = 0; p < progression.Length; p++)
         {
-            for (int i = 0; i < sampleRate * noteLengths[f]; i++)
+            for (int f = 0; f < tune.Count; f++)
             {
-                float s = Mathf.Sin(2.0f * Mathf.PI * frequency[f] * ((float)i / (float)sampleRate));
-                float v = s * volume;
-                samples.Add(v);
+                // Gets frequency from notes dictionary
+                float frequency;
+
+                if (tune[f] == -1)
+                {
+                    frequency = 0;
+                }
+
+                else
+                {
+                    string key = keyList[tune[f]];
+                    frequency = notes[key];
+                }
+
+                for (int i = 0; i < sampleRate * noteLengths[f]; i++)
+                {                  
+                    float s = Mathf.Sin(2.0f * Mathf.PI * frequency * ((float)i / (float)sampleRate));
+                    float v = s * volume;
+                    samples.Add(v);
+                }
             }
-        }
+
+            for (int f = 0; f < tune.Count; f++)
+            {
+                if (tune[f] != -1)
+                {
+                    tune[f] += progression[p];
+                }                
+            }
+        }       
 
         // Samples are put into a list and then converted into a array as the
         // audio clip only takes an array however it is much easier to put
