@@ -221,10 +221,22 @@ public class MusicGeneration : MonoBehaviour
 
         // Baseline
         int[] bassline = new int[progression.Length];
+        int firstNote = 0;
 
         for (int b = 0; b < bassline.Length; b++)
         {
-            bassline[b] = tune[0] + progression[b];
+            while (bassline[b] == 0)
+            {
+                if (tune[firstNote] != -1)
+                {
+                    bassline[b] = tune[0] + progression[b];
+                }
+
+                else
+                {
+                    firstNote++;
+                }
+            }            
         }
 
         // Creates waves from the frequencies
@@ -270,11 +282,11 @@ public class MusicGeneration : MonoBehaviour
             float frequency;
             string key = keyList[bassline[b]];
             frequency = notes[key];
-            
+
             for (int i = 0; i < sampleRate * noteCount; i++)
             {
                 float s = Mathf.Sin(2.0f * Mathf.PI * frequency * ((float)i / (float)sampleRate));
-                float v = s * volume;
+                float v = s * volume;              
                 bassSamples.Add(v);
             }
         }
